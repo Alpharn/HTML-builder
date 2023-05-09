@@ -31,15 +31,25 @@ async function buildPage() {
     const stylesBundle = styles.join('\n');
     await fs.writeFile(outputStylesFile, stylesBundle, 'utf-8');
     const assetsEntries = await fs.readdir(assetsDir, { withFileTypes: true });
-    const copyAssetsPromises = assetsEntries.map((entry) => {
+    const copyAssetsPromises = assetsEntries.map(async (entry) => {
       const srcPath = path.join(assetsDir, entry.name);
       const destPath = path.join(outputDir, 'assets', entry.name);
-      return fs.copyFile(srcPath, destPath);
+      if (entry.isDirectory()) {
+        await fs.mkdir(destPath, { recursive: true });
+        const files = await fs.readdir(srcPath, { withFileTypes: true });
+        return await Promise.all(
+          files.map((file) =>
+            fs.copyFile(path.join(srcPath, file.name), path.join(destPath, file.name))
+          )
+        );
+      } else {
+        return fs.copyFile(srcPath, destPath);
+      }
     });
     await Promise.all(copyAssetsPromises);
 
   } catch (err) {
-    console.error('Ошибка:', err);
+    console.error('Error:', err);
   }
 }
 buildPage();

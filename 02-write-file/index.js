@@ -3,9 +3,9 @@ const path = require('path');
 const readline = require('readline');
 const writeStream = fs.createWriteStream(path.join(__dirname, 'output.txt'), { flags: 'a' });
 const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
+  input: process.stdin,
+  output: process.stdout
+});
 console.log('Type your text:');
 rl.on('line', (input) => {
   if (input.trim().toLowerCase() === 'exit') {
@@ -16,7 +16,7 @@ rl.on('line', (input) => {
     console.log('Text added to file');
   }
 });
-process.on('SIGINT', () => {
-    console.log('\nBye!');
-    rl.close();
-  });
+rl.on('SIGINT', () => {
+  console.log('Bye!');
+  rl.close();
+});
